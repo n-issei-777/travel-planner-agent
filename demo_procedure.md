@@ -80,10 +80,11 @@ agents-cli を使って、Google Maps MCP Server および Google Search と連�
 【指示】
 1. パッケージ管理には uv を使用し、インデックスに https://pypi.org/simple を指定して MCP 拡張版の ADK を追加してください:
    uv add "google-adk[mcp]" --index https://pypi.org/simple
-2. リモート Google Maps MCP サーバーのエンドポイント URL および関連設定を `.env` または設定ファイルに追加してください:
-   - GOOGLE_MAPS_MCP_SERVER_URL (例: https://your-maps-mcp-server-endpoint/mcp)
-   - GOOGLE_GENAI_USE_VERTEXAI=true
-   - GOOGLE_CLOUD_LOCATION=us-central1
+2. Google Maps MCP サーバーのエンドポイント URL および API キー設定を `.env` または設定ファイルに追加してください:
+   - MAPS_API_KEY="YOUR_GOOGLE_MAPS_API_KEY"
+   - GOOGLE_MAPS_MCP_SERVER_URL="https://mapstools.googleapis.com/mcp"
+   - GOOGLE_GENAI_USE_VERTEXAI="true"
+   - GOOGLE_CLOUD_LOCATION="us-central1"
 3. 秘密情報やクレデンシャルが直接コミットされないよう、`.env` が `.gitignore` に含まれていることを確認し、テンプレートとして `.env_example` を作成してください。
 ```
 
@@ -154,29 +155,19 @@ from google.adk.agents import LlmAgent
 from google.adk.tools import google_search
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
-from google.auth.transport.requests import Request
-from google.oauth2.id_token import fetch_id_token
 
-# Google Maps MCPサーバーのエンドポイント取得
+# Google Maps MCP サーバーのエンドポイントおよび API キー取得
 mcp_server_url = os.environ.get(
     "GOOGLE_MAPS_MCP_SERVER_URL",
-    "http://localhost:8080/mcp"
+    "https://mapstools.googleapis.com/mcp"
 )
-
-# 認証ヘッダーの取得
-def get_auth_headers() -> dict[str, str]:
-    try:
-        token = fetch_id_token(Request(), mcp_server_url)
-        return {"Authorization": f"Bearer {token}"}
-    except Exception:
-        # ローカル開発環境向けのフォールバック
-        return {}
+maps_api_key = os.environ.get("MAPS_API_KEY", "")
 
 # Maps MCP ツールセット定義
 maps_mcp_toolset = McpToolset(
     connection_params=StreamableHTTPConnectionParams(
         url=mcp_server_url,
-        headers=get_auth_headers()
+        headers={"X-Goog-Api-Key": maps_api_key}
     )
 )
 
