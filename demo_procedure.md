@@ -181,3 +181,9 @@ Turn 3 で作成したテストを通過（Green）させるよう、エージ�
 3. デプロイ後の確認:
    - デプロイ完了後、提供されるエンドポイントに対して疎通確認を行い、リモート環境で旅行プランが生成できることを確認してください。
 ```
+
+#### 解説とチェックポイント
+- `agents-cli deploy` は `Dockerfile` を用いてコンテナイメージをビルドし、Vertex AI Agent Engine (Reasoning Engine) 上にコンテナインスタンスを自動プロビジョニングする。
+- デプロイ完了後は、A2A (Agent-to-Agent) プロトコル準拠の Agent Card URL、および Google Cloud コンソール上の管理画面リンクが出力される。
+- デプロイメタデータは `deployment_metadata.json` に記録され、次回の更新・監視に利用される。
+
