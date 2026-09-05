@@ -1,0 +1,14 @@
+name: 'travel-planner-agent'
+acli_version: '1.5.0'
+agent_directory: 'app'
+region: 'us-east1'
+base_template: 'adk'
+generated_at: '2026-09-05T01:47:03.071124+00:00'
+language: 'python'
+create_params:
+  deployment_target: 'agent_runtime'
+  session_type: 'none'
+  cicd_runner: 'skip'
+  is_a2a: true
+  agent_gateway: False
+  agent_guidance_filename: 'GEMINI.md'
