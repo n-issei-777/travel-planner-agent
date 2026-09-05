@@ -12,6 +12,7 @@
 - **連携ツール**:
   - **Google Maps MCP Server**: リモートエンドポイント (Streamable HTTP / SSE)。スポット検索、地点間のルート・所要時間算出を担当。
   - **Google Search**: ADK ネイティブツール。最新の観光情報、イベント、見どころ、営業時間等のリサーチを担当。
+- **ADK バージョン**: `google-adk==2.8.0`
 - **実行環境**: Python 3.12 (`python3.12`), `uv` (パッケージマネージャー)
 - **パッケージインデックス**: `https://pypi.org/simple`
 - **開発手法**: テスト駆動開発 (TDD / pytest)
@@ -49,24 +50,24 @@ agents-cli info
 #### 投入プロンプト
 
 ```text
-agents-cli を使って、Google Maps MCP Server および Google Search と連携する ADK 旅行計画エージェントの新規プロジェクトを作成してください。
+agents-cli を使って、Google Maps MCP Server および Google Search と連携する ADK 旅行計画エージェントの新規プロジェクトを作成してください。prototypeでOK
 
 【要件】
-1. デプロイ先ターゲット: agent_runtime (Vertex AI Agent Engine)
+1. デプロイ先ターゲット: agent_runtime (Google Cloud Agent Runtime)
 2. 使用モデル: gemini-3.8-flash
 3. Python バージョン: 3.12
-4. プロジェクト名: travel-planner-agent
-5. 概要: 
+4. ADK バージョン: google-adk==2.8.0
+5. プロジェクト名: travel-planner-agent
+6. 概要: 
    - ユーザーの希望（目的地、日数、予算、同行者など）に応じた旅行日程プランを作成する。
    - リモートの Google Maps MCP サーバーを呼び出し、スポットの正確な位置・移動ルート・所要時間を算出する。
    - Google Search を利用して、現地の最新イベントや見どころ、おすすめ情報を検索・反映する。
+7. 仕様：
+   - `google.adk.tools.mcp_tool.McpToolset` および `StreamableHTTPConnectionParams` を使用してリモートの Google Maps MCP サーバーへ接続。
+   - ADK の `google_search` ツールを追加。
 
 まずは Phase 0 として仕様を整理し、`.agents-cli-spec.md` を作成した上で、`agents-cli scaffold create travel-planner-agent --deployment-target agent_runtime` を実行してプロジェクト構造を生成してください。
 ```
-
-#### 解説とチェックポイント
-- `agents-cli scaffold create` により、エージェント定義、テスト、デプロイ用インフラ定義が一式生成される。
-- `.agents-cli-spec.md` にモデル名 `gemini-3.8-flash`、ターゲット `agent_runtime`、2つのツール（Google Maps MCP、Google Search）が正しく記載されているか確認する。
 
 ---
 
@@ -78,8 +79,8 @@ agents-cli を使って、Google Maps MCP Server および Google Search と連�
 生成したプロジェクトに、リモート MCP クライアントおよび検索ツールに必要なパッケージと環境変数を設定してください。
 
 【指示】
-1. パッケージ管理には uv を使用し、インデックスに https://pypi.org/simple を指定して MCP 拡張版の ADK を追加してください:
-   uv add "google-adk[mcp]" --index https://pypi.org/simple
+1. パッケージ管理には uv を使用し、インデックスに https://pypi.org/simple を指定して ADK v2.8.0 の MCP 拡張を追加してください:
+   uv add "google-adk[mcp]==2.8.0" --index https://pypi.org/simple
 2. Google Maps MCP サーバーのエンドポイント URL および API キー設定を `.env` または設定ファイルに追加してください:
    - MAPS_API_KEY="YOUR_GOOGLE_MAPS_API_KEY"
    - GOOGLE_MAPS_MCP_SERVER_URL="https://mapstools.googleapis.com/mcp"
@@ -87,10 +88,6 @@ agents-cli を使って、Google Maps MCP Server および Google Search と連�
    - GOOGLE_CLOUD_LOCATION="us-central1"
 3. 秘密情報やクレデンシャルが直接コミットされないよう、`.env` が `.gitignore` に含まれていることを確認し、テンプレートとして `.env_example` を作成してください。
 ```
-
-#### 解説とチェックポイント
-- `google-adk[mcp]` の追加により、`StreamableHTTPConnectionParams` および `McpToolset` が利用可能になる。
-- リモート MCP サーバーのエンドポイント URL を環境変数から動的に読み込めるように構成する。
 
 ---
 
@@ -116,10 +113,6 @@ agents-cli を使って、Google Maps MCP Server および Google Search と連�
 テスト作成後、`uv run pytest` を実行し、本体未実装のため失敗（Red状態）することを確認してください。
 ```
 
-#### 解説とチェックポイント
-- 実装前にテストを作成し、意図通りテストが失敗することを確認する（Red）。
-- テスト内でモックを活用し、リモートサーバーが停止していてもローカルテストが独立して実行できるようにする。
-
 ---
 
 ### Turn 4: エージェント本体の実装とローカルスモークテスト (Phase 3 - 実装)
@@ -142,48 +135,9 @@ Turn 3 で作成したテストを通過（Green）させるよう、エージ�
 3. 検証:
    - `uv run pytest` を実行してテストが全て通過することを確認。
    - `agents-cli run "京都の1泊2日の旅行プランを提案してください。金閣寺と嵐山に行きたいです。"` を実行して、ローカル環境でのスモークテストを実施してください。
-4. 制約事項:
-   - コード内の日本語コメントは体言止めまたは普通体で記述すること。
-   - コード内およびログに絵文字を使用しないこと。
 ```
 
-#### 実装参考コード (概要)
 
-```python
-import os
-from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
-from google.adk.tools.mcp_tool import McpToolset
-from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
-
-# Google Maps MCP サーバーのエンドポイントおよび API キー取得
-mcp_server_url = os.environ.get(
-    "GOOGLE_MAPS_MCP_SERVER_URL",
-    "https://mapstools.googleapis.com/mcp"
-)
-maps_api_key = os.environ.get("MAPS_API_KEY", "")
-
-# Maps MCP ツールセット定義
-maps_mcp_toolset = McpToolset(
-    connection_params=StreamableHTTPConnectionParams(
-        url=mcp_server_url,
-        headers={"X-Goog-Api-Key": maps_api_key}
-    )
-)
-
-# ルートエージェント定義
-root_agent = LlmAgent(
-    name="travel_planner_agent",
-    model="gemini-3.8-flash",
-    instruction=(
-        "あなたはプロの旅行プランナーです。"
-        "ユーザーの要望に基づいて実行可能で無理のない旅行プランを作成します。\n"
-        "1. 目的地の位置情報、ルート、移動時間の算出には Google Maps MCP ツールを使用すること。\n"
-        "2. 最新の観光地情報、おすすめスポット、営業時間、イベントの確認には Google Search を使用すること。\n"
-        "3. 日程ごとのタイムライン形式で、移動手段と所要時間を明記したプランを出力すること。"
-    ),
-    tools=[maps_mcp_toolset, google_search]
-)
 ```
 
 ---
@@ -227,18 +181,3 @@ root_agent = LlmAgent(
 3. デプロイ後の確認:
    - デプロイ完了後、提供されるエンドポイントに対して疎通確認を行い、リモート環境で旅行プランが生成できることを確認してください。
 ```
-
-#### 解説とチェックポイント
-- Agent Runtime へのデプロイはバックグラウンドで進行するため、タイムアウトした場合は `agents-cli deploy --status` で進捗を確認する。
-- デプロイ前に必ずユーザーの明示的な承認を得てから実行する。
-
----
-
-## 4. Git 管理と運用のルール
-
-1. **ブランチ運用**:
-   - `main` ブランチへ直接コミットせず、`feature/travel-planner-mcp` などの作業ブランチを作成して作業する。
-2. **コミットメッセージ**:
-   - 英語で記述する (例: `feat: implement travel planner agent with Google Maps MCP and Google Search`).
-3. **機密情報の除外**:
-   - `.env` や Google Cloud クレデンシャルが Git に含まれていないことを必ずコミット前に確認する。
