@@ -16,13 +16,17 @@
 - **開発手法**: テスト駆動開発 (TDD / pytest) によるインターフェース検証 + `agents-cli eval` による旅行プラン品質評価
 
 ## リポジトリ構成
-- [demo_procedure.md](demo_procedure.md): デモ中に実施した各ターン（Turn 1〜6）の投入プロンプトと詳細手順書
-- [travel-planner-agent/](travel-planner-agent/): エージェント本体のプロジェクトディレクトリ
-  - `app/agent.py`: Google Maps MCP と Google Search を統合したエージェント実装
+- `app/`: エージェント本体コード
+  - `app/agent.py`: Google Maps MCP と Google Search を統合したエージェント定義
+  - `app/fast_api_app.py`: FastAPI バックエンドサーバー
+- `tests/`: テストスイート
   - `tests/unit/`: pytest によるユニットテスト
+  - `tests/integration/`: MCP 統合テスト
   - `tests/eval/`: 評価データセットと評価設定
-  - `Dockerfile`: コンテナビルド定義
+- `demo_procedure.md`: デモ中に実施した各ターン（Turn 1〜6）の投入プロンプトと詳細手順書
 - `.agents-cli-spec.md`: エージェントの初期仕様定義書
+- `pyproject.toml` / `uv.lock`: 依存関係定義
+- `Dockerfile`: コンテナビルド定義
 
 ## クイックスタート (ローカル実行)
 
@@ -33,10 +37,9 @@
 - agents-cli (`uv tool install google-agents-cli`)
 
 ### 2. 環境変数の設定
-`travel-planner-agent/.env.example` をコピーして `.env` を作成し、必要な設定を行ってください。
+`.env.example` をコピーして `.env` を作成し、必要な設定を行ってください。
 
 ```bash
-cd travel-planner-agent
 cp .env.example .env
 ```
 
