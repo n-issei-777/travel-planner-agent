@@ -1,6 +1,6 @@
 # agents-cli と Google Maps MCP / Google Search を用いた旅行計画エージェント開発・デプロイ手順
 
-本ドキュメントは、`agents-cli` を使用してリモートエンドポイントの **Google Maps MCP (Model Context Protocol) サーバー** および **Google Search** と連携する ADK (Agent Development Kit) 旅行計画エージェントを開発し、**Agent Runtime** (Vertex AI Agent Engine) にデプロイするデモの実行手順およびプロンプト集である。
+本ドキュメントは、`agents-cli` を使用してリモートエンドポイントの **Google Maps MCP (Model Context Protocol) サーバー** および **Google Search** と連携する ADK (Agent Development Kit) 旅行計画エージェントを開発し、**Gemini Enterprise Agent Platform (Agent Runtime)** にデプロイするデモの実行手順およびプロンプト集である。
 
 ---
 
@@ -168,7 +168,7 @@ Turn 3 で作成したテストを通過（Green）させるよう、エージ�
 #### 投入プロンプト
 
 ```text
-評価結果に問題がなければ、Agent Runtime (Vertex AI Agent Engine) へのデプロイを実施してください。
+評価結果に問題がなければ、Gemini Enterprise Agent Platform (Agent Runtime) へのデプロイを実施してください。
 
 【手順】
 1. デプロイ前チェック:
@@ -181,7 +181,7 @@ Turn 3 で作成したテストを通過（Green）させるよう、エージ�
 ```
 
 #### 解説とチェックポイント
-- `agents-cli deploy` は `Dockerfile` を用いてコンテナイメージをビルドし、Vertex AI Agent Engine (Reasoning Engine) 上にコンテナインスタンスを自動プロビジョニングする。
+- `agents-cli deploy` は `Dockerfile` を用いてコンテナイメージをビルドし、Gemini Enterprise Agent Platform (Agent Runtime) 上にコンテナインスタンスを自動プロビジョニングする。
 - デプロイ完了後は、A2A (Agent-to-Agent) プロトコル準拠の Agent Card URL、および Google Cloud コンソール上の管理画面リンクが出力される。
 - デプロイメタデータは `deployment_metadata.json` に記録され、次回の更新・監視に利用される。
 

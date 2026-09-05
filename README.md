@@ -12,7 +12,7 @@
 - **外部連携ツール**:
   - **Google Maps MCP Server**: リモートエンドポイント (Streamable HTTP / SSE) 経由でスポット検索・ルート・所要時間算出を実施
   - **Google Search**: ADK ネイティブツールを用いて最新の観光地情報・イベント・営業時間をリサーチ
-- **デプロイ先**: Vertex AI Agent Engine (Agent Runtime / Reasoning Engine)
+- **デプロイ先**: Gemini Enterprise Agent Platform (Agent Runtime)
 - **開発手法**: テスト駆動開発 (TDD / pytest) によるインターフェース検証 + `agents-cli eval` による旅行プラン品質評価
 
 ## リポジトリ構成
