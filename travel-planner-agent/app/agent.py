@@ -15,6 +15,7 @@
 
 import os
 
+from dotenv import load_dotenv
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
@@ -22,6 +23,9 @@ from google.adk.tools import google_search
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from google.genai import types
+
+# 環境変数の読み込み
+load_dotenv()
 
 MODEL = "gemini-3.8-flash"
 
