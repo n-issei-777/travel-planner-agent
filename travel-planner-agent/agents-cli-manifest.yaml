@@ -1,7 +1,7 @@
 name: 'travel-planner-agent'
 acli_version: '1.5.0'
 agent_directory: 'app'
-region: 'us-east1'
+region: 'us-central1'
 base_template: 'adk'
 generated_at: '2026-09-05T01:47:03.071124+00:00'
 language: 'python'

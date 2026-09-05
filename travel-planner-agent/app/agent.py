@@ -13,59 +13,48 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-from zoneinfo import ZoneInfo
+import os
 
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
+from google.adk.tools import google_search
+from google.adk.tools.mcp_tool import McpToolset
+from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from google.genai import types
-
 
 MODEL = "gemini-3.8-flash"
 
+# Google Maps MCP サーバーのエンドポイントおよび API キー取得
+mcp_server_url = os.environ.get(
+    "GOOGLE_MAPS_MCP_SERVER_URL",
+    "https://mapstools.googleapis.com/mcp",
+)
+maps_api_key = os.environ.get("MAPS_API_KEY", "")
 
-def get_weather(query: str) -> str:
-    """Simulates a web search. Use it get information on weather.
+# Google Maps MCP ツールセット定義
+maps_mcp_toolset = McpToolset(
+    connection_params=StreamableHTTPConnectionParams(
+        url=mcp_server_url,
+        headers={"X-Goog-Api-Key": maps_api_key},
+    )
+)
 
-    Args:
-        query: A string containing the location to get weather information for.
-
-    Returns:
-        A string with the simulated weather information for the queried location.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
-
-
-def get_current_time(query: str) -> str:
-    """Simulates getting the current time for a city.
-
-    Args:
-        city: The name of the city to get the current time for.
-
-    Returns:
-        A string with the current time information.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        tz_identifier = "America/Los_Angeles"
-    else:
-        return f"Sorry, I don't have timezone information for query: {query}."
-
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
-
-
+# ルートエージェント定義
 root_agent = Agent(
     name="travel_planner_agent",
     model=Gemini(
         model=MODEL,
         retry_options=types.HttpRetryOptions(attempts=3),
     ),
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
+    instruction=(
+        "あなたはプロの旅行プランナーです。"
+        "ユーザーの要望に基づいて実行可能で無理のない旅行計画を作成します。\n"
+        "1. 目的地の位置情報、ルート、所要時間の確認には Google Maps MCP ツールを使用すること。\n"
+        "2. 最新の観光地情報、おすすめスポット、営業時間、イベントの確認には Google Search を使用すること。\n"
+        "3. 日程ごとのタイムライン形式で、移動手段と所要時間を明記したプランを出力すること。"
+    ),
+    tools=[maps_mcp_toolset, google_search],
 )
 
 app = App(
