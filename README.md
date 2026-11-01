@@ -1,5 +1,7 @@
 # 旅行計画エージェント (travel-planner-agent)
 
+[![CI](https://github.com/n-issei-777/travel-planner-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/n-issei-777/travel-planner-agent/actions/workflows/ci.yml)
+
 ## 概要
 【渋谷】Zenn Agentic AI ミニハッカソン with Google Cloud (2026/09/05)  
 イベントページ: https://events.classmethod.jp/study-club/connpass-398578/
@@ -70,3 +72,8 @@ agents-cli playground
 
 ## デモ手順の再現
 デモ全体の流れ（プロジェクト初期化、TDDによるテスト・本体実装、評価、デプロイ）の投入プロンプトや詳細な解説については、[demo_procedure.md](demo_procedure.md) をご参照ください。
+
+---
+
+## Disclaimer
+This repository is a personal demonstration project for educational purposes and is not an officially supported Google product.
