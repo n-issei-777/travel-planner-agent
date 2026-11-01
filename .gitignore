@@ -74,6 +74,7 @@ venv.bak/
 
 # IDEs and editors
 .idea/
+*.code-workspace
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

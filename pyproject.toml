@@ -1,9 +1,9 @@
 [project]
 name = "travel-planner-agent"
 version = "0.1.0"
-description = ""
+description = "Travel planning AI agent built with Google ADK, Gemini 3.8 Flash, Google Maps MCP, and Google Search"
 authors = [
-    {name = "Your Name", email = "your@email.com"},
+    {name = "Issei Nakamura"},
 ]
 
 

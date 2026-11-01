@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 from google.adk.tools import google_search
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 
-from app.agent import root_agent, MODEL
+from app.agent import MODEL, root_agent
 
 
 def test_agent_model() -> None:
@@ -29,6 +28,7 @@ def test_agent_model() -> None:
 def test_agent_instruction() -> None:
     # 指示プロンプトの検証
     instruction = root_agent.instruction
+    assert isinstance(instruction, str)
     assert "旅行" in instruction
     assert "Google Maps" in instruction or "Maps" in instruction
     assert "Google Search" in instruction or "Search" in instruction
@@ -58,4 +58,5 @@ def test_maps_mcp_toolset_configuration() -> None:
     params = mcp_tool.connection_params
     assert isinstance(params, StreamableHTTPConnectionParams)
     assert "mapstools.googleapis.com" in params.url
+    assert params.headers is not None
     assert "X-Goog-Api-Key" in params.headers
